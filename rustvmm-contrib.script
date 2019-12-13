@@ -1,0 +1,28 @@
+set multiplot layout 3,1
+set yrange [0:15]
+set xrange [1:52]
+set ytics 5
+set key at screen 1,screen 1 vertical maxrows 2
+
+set title "Pull requests" font ",12"
+set xlabel " "
+plot "AWS_PR.out" u 1:2 title 'AWS' w lines lw 2 lc rgb 'blue', \
+     "Intel_PR.out" u 1:2 title 'Intel' w lines lw 2 lc rgb 'red', \
+     "Alibaba_PR.out" u 1:2 title 'Alibaba' w lines lw 2 lc rgb 'orange', \
+     "RedHat_PR.out" u 1:2 title 'RedHat' w lines lw 2 lc rgb 'green
+
+set title "Issues" font ",12"
+set xlabel " "
+plot "AWS_ISSUE.out" u 1:2 title 'AWS' w lines lw 2 lc rgb 'blue', \
+     "Intel_ISSUE.out" u 1:2 title 'Intel' w lines lw 2 lc rgb 'red', \
+     "Alibaba_ISSUE.out" u 1:2 title 'Alibaba' w lines lw 2 lc rgb 'orange', \
+     "RedHat_ISSUE.out" u 1:2 title 'RedHat' w lines lw 2 lc rgb 'green'
+
+set title "Reviews" font ",12"
+set xlabel "Week of the year"
+set yrange [0:30]
+set ytics 10
+plot "AWS_COMMENT.out" u 1:2 title 'AWS' w lines lw 2 lc rgb 'blue', \
+     "Intel_COMMENT.out" u 1:2 title 'Intel' w lines lw 2 lc rgb 'red', \
+     "Alibaba_COMMENT.out" u 1:2 title 'Alibaba' w lines lw 2 lc rgb 'orange', \
+     "RedHat_COMMENT.out" u 1:2 title 'RedHat' w lines lw 2 lc rgb 'green'

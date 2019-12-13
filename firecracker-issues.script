@@ -1,0 +1,5 @@
+set ylabel "Days"
+set xlabel "Day since open sourcing"
+set pointsize 1.3
+plot "issues.log" u 1:2 title 'Days to first contact' w points pt 5 lc rgb 'orange', \
+     "issues.log" u 1:3 title 'Age' w points pt 5 lc rgb 'green'
