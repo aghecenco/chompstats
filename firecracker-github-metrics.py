@@ -11,7 +11,7 @@ ORG = 'https://api.github.com/orgs/firecracker-microvm'
 REPO = 'https://api.github.com/repos/firecracker-microvm/firecracker'
 OSDAY = datetime.datetime(2018,11,26,0,0,0)
 
-TOKEN = ''
+TOKEN = open('.token').read().strip()
 
 FIRST_TIME_CONTRIB = 'FIRST_TIME_CONTRIBUTOR'
 MEMBER = 'MEMBER'
@@ -90,18 +90,6 @@ def issue_details(issue_no):
     return json.loads(response.text or response.content)
 
 
-def adsf():
-    response = requests.get(
-        '{}/issues/events/3303481156'
-        .format(REPO),
-        headers={
-            'Authorization': 'token {}'.format(TOKEN),
-            'Content-Type': 'application/json'
-        }
-    )
-    return json.loads(response.text or response.content)
-
-
 def pulls():
     return _github_resources('pulls')
 
@@ -138,9 +126,6 @@ def post_open_sourcing(resources):
 def main():
     all_pulls = []
     all_issues = []
-
-    print(json.dumps(adsf(), indent=2))
-    return
 
     # TODO cmd line args for cache disable
     if not os.path.exists('pulls.json'):
