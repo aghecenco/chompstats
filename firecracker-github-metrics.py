@@ -3,6 +3,7 @@ from dateutil.parser import parse
 import json
 import os
 import pprint
+import re
 import requests
 
 
@@ -10,7 +11,7 @@ ORG = 'https://api.github.com/orgs/firecracker-microvm'
 REPO = 'https://api.github.com/repos/firecracker-microvm/firecracker'
 OSDAY = datetime.datetime(2018,11,26,0,0,0)
 
-TOKEN = 'INSERT-TOKEN-HERE'
+TOKEN = ''
 
 FIRST_TIME_CONTRIB = 'FIRST_TIME_CONTRIBUTOR'
 MEMBER = 'MEMBER'
@@ -56,6 +57,51 @@ def comments(issue_no):
     return all_resources
 
 
+def close_events(issue_no):
+    all_resources = []
+    page = 1
+    while True:
+        response = requests.get(
+            '{}/issues/{}/events?page={}&per_page=100'
+            .format(REPO, issue_no, page),
+            headers={
+                'Authorization': 'token {}'.format(TOKEN),
+                'Content-Type': 'application/json'
+            }
+        )            
+        resources = json.loads(response.text or response.content)
+        all_resources.extend(resources)
+        if len(resources) < 100:
+            break
+        page += 1
+    return all_resources
+
+
+
+def issue_details(issue_no):
+    response = requests.get(
+        '{}/issues/{}'
+        .format(REPO, issue_no),
+        headers={
+            'Authorization': 'token {}'.format(TOKEN),
+            'Content-Type': 'application/json'
+        }
+    )
+    return json.loads(response.text or response.content)
+
+
+def adsf():
+    response = requests.get(
+        '{}/issues/events/3303481156'
+        .format(REPO),
+        headers={
+            'Authorization': 'token {}'.format(TOKEN),
+            'Content-Type': 'application/json'
+        }
+    )
+    return json.loads(response.text or response.content)
+
+
 def pulls():
     return _github_resources('pulls')
 
@@ -91,6 +137,11 @@ def post_open_sourcing(resources):
 
 def main():
     all_pulls = []
+    all_issues = []
+
+    print(json.dumps(adsf(), indent=2))
+    return
+
     # TODO cmd line args for cache disable
     if not os.path.exists('pulls.json'):
         print('Getting pulls from GH api')
@@ -105,12 +156,40 @@ def main():
     if not os.path.exists('issues.json'):
         print('Getting issues from GH api')
         with open('issues.json', 'w') as issues_json:
-            all_issues = issues()
+            tmp_issues = issues()
+            for issue in tmp_issues:
+                if '/issues/' in issue['html_url']:
+                    all_issues.append(issue)
             issues_json.write(json.dumps(all_issues))
     else:
         print('Getting issues from cached file')
         with open('issues.json') as issues_json:
             all_issues = json.load(issues_json)
+
+    for issue in all_issues:
+        comm_iss = comments(issue['number'])
+        comms_fname = 'issue_{}_comments.json'.format(issue['number'])
+        if not os.path.exists(comms_fname):
+            print('Getting comments from GH api')
+            with open(comms_fname, 'w') as comms_json:
+                comms_json.write(json.dumps(comm_iss))
+        # Find if issue was closed by a commit
+        evts_fname = 'issue_{}_events.json'.format(issue['number'])
+        close_evts = close_events(issue['number']) if issue['state'].strip().lower() == 'closed' else []
+        if not os.path.exists(evts_fname):
+            print('Getting events from GH api')
+            with open(evts_fname, 'w') as evts_json:
+                evts_json.write(json.dumps(close_evts))
+
+    for pr in all_pulls:
+        comm_pr = comments(pr['number'])
+        comms_fname = 'pr_{}_comments.json'.format(pr['number'])
+        if not os.path.exists(comms_fname):
+            print('Getting comments from GH api')
+            with open(comms_fname, 'w') as comms_json:
+                comms_json.write(json.dumps(comm_pr))
+
+    return
 
     # pp = pprint.PrettyPrinter(indent=4)
 
