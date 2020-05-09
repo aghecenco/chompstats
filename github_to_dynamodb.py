@@ -2,6 +2,7 @@ import datetime
 from dateutil.parser import parse
 from enum import Enum
 import json
+from math import ceil
 import re
 
 
@@ -154,14 +155,109 @@ def dynamodb_batch_req(reqs, table_name):
         curr_idx += 25
 
 
+def dynamo_req(items):
+    return [ { 'PutRequest': mkitem_dynamo(item) } for item in items]
+
+
+def write_dynamo_reqs(items, table_name):
+    dynamodb_batch_req(dynamo_req(items), table_name)
+
+
+def created_at(item):
+    return parse(item['created_at']).replace(tzinfo=TODAY.tzinfo)
+
+
+def gnuplot_data(items):
+    # Only look in 2020
+    START_DATE = datetime.datetime(2020, 1, 1, 0, 0, 1)
+    items_tracked = [it for it in items if created_at(it).year == 2020]
+
+    num_days = days_delta(START_DATE, TODAY)
+    answered_community = {}
+    answered_internal = {}
+    unanswered_community = {}
+    unanswered_internal = {}
+
+    for day in range(num_days):
+        items_this_day = [
+            it for it in items_tracked if days_delta(START_DATE, created_at(it)) == day
+        ]
+        it_answered = [it for it in items_this_day if it['answered']]
+        it_unanswered = [it for it in items_this_day if not it['answered']]
+
+        it_answered_community = [it for it in it_answered if it['source'] == 'community']
+        it_answered_internal = [it for it in it_answered if it['source'] == 'internal']
+        it_unanswered_community = [it for it in it_unanswered if it['source'] == 'community']
+        it_unanswered_internal = [it for it in it_unanswered if it['source'] == 'internal']
+
+        ages_answered_community = [it['age'] for it in it_answered_community]
+        ages_answered_internal = [it['age'] for it in it_answered_internal]
+        ages_unanswered_community = [it['age'] for it in it_unanswered_community]
+        ages_unanswered_internal = [it['age'] for it in it_unanswered_internal]
+
+        if len(ages_answered_community) > 0:
+            answered_community[day] = max(ages_answered_community)
+        if len(ages_answered_internal) > 0:
+            answered_internal[day] = max(ages_answered_internal)
+        if len(ages_unanswered_community) > 0:
+            unanswered_community[day] = max(ages_unanswered_community)
+        if len(ages_unanswered_internal) > 0:
+            unanswered_internal[day] = max(ages_unanswered_internal)
+    
+    return answered_community, answered_internal, unanswered_community, unanswered_internal
+
+
+def write_gnuplot_data(pulls, issues):
+    issues_answered_community, _, issues_unanswered_community, _ = gnuplot_data(issues)
+    prs_answered_community, _, prs_unanswered_community, _ = gnuplot_data(pulls)
+
+    answered_community = {}
+    unanswered_community = {}
+
+    with open('answered_community_issues.data', 'w') as out:
+        out.write('# day age\n')
+        for day in issues_answered_community:
+            out.write('{} {}\n'.format(day, issues_answered_community[day]))
+            answered_community[day] = issues_answered_community[day]
+    with open('unanswered_community_issues.data', 'w') as out:
+        out.write('# day age\n')
+        for day in issues_unanswered_community:
+            out.write('{} {}\n'.format(day, issues_unanswered_community[day]))
+            unanswered_community[day] = issues_unanswered_community[day]
+    
+    with open('answered_community_pulls.data', 'w') as out:
+        out.write('# day age\n')
+        for day in prs_answered_community:
+            out.write('{} {}\n'.format(day, prs_answered_community[day]))
+            if day not in answered_community:
+                answered_community[day] = 0
+            answered_community[day] += prs_answered_community[day]
+
+    with open('unanswered_community_pulls.data', 'w') as out:
+        out.write('# day age\n')
+        for day in prs_unanswered_community:
+            out.write('{} {}\n'.format(day, prs_unanswered_community[day]))
+            if day not in unanswered_community:
+                unanswered_community[day] = 0
+            unanswered_community[day] += prs_unanswered_community[day]
+    
+    with open('answered_community.data', 'w') as out:
+        out.write('# day age\n')
+        for day in answered_community:
+            out.write('{} {}\n'.format(day, answered_community[day]))
+    with open('unanswered_community.data', 'w') as out:
+        out.write('# day age\n')
+        for day in unanswered_community:
+            out.write('{} {}\n'.format(day, unanswered_community[day]))
+
 def main():
     pulls_internal, pulls_raw = process_pulls()
-    pulls_reqs = [ { 'PutRequest': mkitem_dynamo(pr) } for pr in pulls_internal]
-    dynamodb_batch_req(pulls_reqs, PULLS_TABLE_NAME)
-
     issues_internal = process_issues([pr for pr in pulls_raw if state(pr) == 'merged'])
-    issues_reqs = [ { 'PutRequest': mkitem_dynamo(iss) } for iss in issues_internal]
-    dynamodb_batch_req(issues_reqs, ISSUES_TABLE_NAME)
+
+    write_gnuplot_data(pulls_internal, issues_internal)
+    
+    # write_dynamo_reqs(pulls_internal, PULLS_TABLE_NAME)
+    # write_dynamo_reqs(issues_internal, ISSUES_TABLE_NAME)
 
 
 if __name__ == '__main__':
