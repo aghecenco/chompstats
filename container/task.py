@@ -31,6 +31,7 @@ def days_delta(start, end):
 
 
 def mark_issue_dropped(issue, issues_table):
+    print('issue {} will be dropped'.format(issue['number']))
     _ = issues_table.update_item(
         Key={ 'number': '{}'.format(issue['number']) },
         UpdateExpression="set age=:a, #s=:s, closed_at=:c",
@@ -82,12 +83,19 @@ def update_closed_issues(issues_table):
         delete_sqs_msg(sqs, message)
 
 
+def item_type(item):
+    return 'issue' if '/issues/' in item['url'] else 'pr'
+
+
 def age_up_items(table):
     response = table.scan(
         FilterExpression=Key('state').eq('open') & Key('answered').eq(False)
     )
     for open_it in response['Items']:
         age = days_delta(parse(open_it['created_at']), TODAY)
+        print('{} {} will be aged up to {}'.format(
+            item_type(open_it), open_it['number'], age
+        ))
         _ = table.update_item(
             Key={'number': open_it['number']},
             UpdateExpression="set unanswered_age=:u, age=:a",
