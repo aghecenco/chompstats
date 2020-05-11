@@ -256,8 +256,8 @@ def main():
 
     write_gnuplot_data(pulls_internal, issues_internal)
     
-    # write_dynamo_reqs(pulls_internal, PULLS_TABLE_NAME)
-    # write_dynamo_reqs(issues_internal, ISSUES_TABLE_NAME)
+    write_dynamo_reqs(pulls_internal, PULLS_TABLE_NAME)
+    write_dynamo_reqs(issues_internal, ISSUES_TABLE_NAME)
 
 
 if __name__ == '__main__':

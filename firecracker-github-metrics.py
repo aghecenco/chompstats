@@ -152,25 +152,26 @@ def main():
             all_issues = json.load(issues_json)
 
     for issue in all_issues:
-        comm_iss = comments(issue['number'])
         comms_fname = 'issue_{}_comments.json'.format(issue['number'])
         if not os.path.exists(comms_fname):
-            print('Getting comments from GH api')
+            print('Issue {} Getting comments from GH api'.format(issue['number']))
+            comm_iss = comments(issue['number'])
             with open(comms_fname, 'w') as comms_json:
                 comms_json.write(json.dumps(comm_iss))
         # Find if issue was closed by a commit
         evts_fname = 'issue_{}_events.json'.format(issue['number'])
-        close_evts = close_events(issue['number']) if issue['state'].strip().lower() == 'closed' else []
-        if not os.path.exists(evts_fname):
-            print('Getting events from GH api')
-            with open(evts_fname, 'w') as evts_json:
-                evts_json.write(json.dumps(close_evts))
+        if issue['state'].strip().lower() == 'closed':
+            if not os.path.exists(evts_fname):
+                print('Issue {} Getting events from GH api'.format(issue['number']))
+                close_evts = close_events(issue['number'])
+                with open(evts_fname, 'w') as evts_json:
+                    evts_json.write(json.dumps(close_evts))
 
     for pr in all_pulls:
-        comm_pr = comments(pr['number'])
         comms_fname = 'pr_{}_comments.json'.format(pr['number'])
         if not os.path.exists(comms_fname):
-            print('Getting comments from GH api')
+            print('PR {} Getting comments from GH api'.format(pr['number']))
+            comm_pr = comments(pr['number'])
             with open(comms_fname, 'w') as comms_json:
                 comms_json.write(json.dumps(comm_pr))
 
