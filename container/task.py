@@ -7,8 +7,8 @@ import json
 import os
 
 # DynamoDB identifiers
-ISSUES_TABLE_NAME = 'FoobarIssues'
-PULLS_TABLE_NAME = 'FoobarPulls'
+ISSUES_TABLE_NAME = 'FirecrackerIssues'
+PULLS_TABLE_NAME = 'FirecrackerPulls'
 
 SQS = 'https://sqs.us-west-2.amazonaws.com/948479086345/GithubIssueClosedEvents.fifo'
 
