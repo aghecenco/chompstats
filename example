@@ -1,0 +1,216 @@
+aws dynamodb scan                                                           \
+    --table-name FirecrackerIssues                                          \
+    --filter-expression                                                     \
+        'answered = :a AND #s=:s AND unanswered_age > :u'                   \
+    --expression-attribute-values                                           \
+        '{":a":{"BOOL":false}, ":s":{"S":"community"}, ":u": {"N":"1"}}'    \
+    --expression-attribute-names                                            \
+        '{"#s":"source","#u":"url"}'                                        \
+    --projection-expression                                                 \
+        "unanswered_age, #u"
+
+
+ docker run --rm -it                                                        \
+    -v ~/.aws:/root/.aws                                                    \
+    amazon/aws-cli dynamodb scan                                            \
+    --table-name FirecrackerIssues                                          \
+    --filter-expression                                                     \
+        'answered = :a AND #s=:s AND unanswered_age > :u'                   \
+    --expression-attribute-values                                           \
+        '{":a":{"BOOL":false}, ":s":{"S":"community"}, ":u": {"N":"1"}}'    \
+    --expression-attribute-names                                            \
+        '{"#s":"source","#u":"url"}'                                        \
+    --projection-expression                                                 \
+        "unanswered_age, #u"
+
+{
+    "Items": [
+        {
+            "unanswered_age": {
+                "N": "20"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/972"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "37"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/1732"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "30"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/36"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "10"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/18"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "90"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/1194"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "38"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/1192"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "45"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/1716"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "22"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/54"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "523"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/739"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "90"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/1193"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "52"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/1688"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "44"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/30"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "9"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/88"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "2"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/1566"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "29"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/41"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "307"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/1164"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "6"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/46"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "7"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/85"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "12"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/1191"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "30"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/37"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "8"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/86"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "489"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/818"
+            }
+        },
+        {
+            "unanswered_age": {
+                "N": "28"
+            },
+            "url": {
+                "S": "https://github.com/firecracker-microvm/firecracker/issues/47"
+            }
+        }
+    ],
+    "ConsumedCapacity": null,
+    "ScannedCount": 894,
+    "Count": 23
+}
