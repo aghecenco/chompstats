@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 
 .token
+dynamo_json/
+json/
+gnuplot_data/
