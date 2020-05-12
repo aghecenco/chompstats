@@ -104,7 +104,7 @@ def item_internal(item, comms, item_type=ItemType.PR, merged_prs=[]):
     else:
         item_short['answered'] = True
         item_short['answer_url'] = ans['html_url'].strip()
-        item_short['unanswered_age'] = days_delta(parse(ans['created_at']).replace(tzinfo=TODAY.tzinfo), TODAY)
+        item_short['unanswered_age'] = days_delta(parse(item['created_at']), parse(ans['created_at']))
 
     return item_short
 
