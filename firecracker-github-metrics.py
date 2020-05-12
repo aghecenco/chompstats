@@ -57,6 +57,26 @@ def comments(issue_no):
     return all_resources
 
 
+def reviews(pr_no):
+    all_resources = []
+    page = 1
+    while True:
+        response = requests.get(
+            '{}/pulls/{}/reviews?page={}&per_page=100'
+            .format(REPO, pr_no, page),
+            headers={
+                'Authorization': 'token {}'.format(TOKEN),
+                'Content-Type': 'application/json'
+            }
+        )
+        resources = json.loads(response.text or response.content)
+        all_resources.extend(resources)
+        if len(resources) < 100:
+            break
+        page += 1
+    return all_resources
+
+
 def close_events(issue_no):
     all_resources = []
     page = 1
@@ -174,6 +194,12 @@ def main():
             comm_pr = comments(pr['number'])
             with open(comms_fname, 'w') as comms_json:
                 comms_json.write(json.dumps(comm_pr))
+        reviews_fname = 'pr_{}_reviews.json'.format(pr['number'])
+        if not os.path.exists(reviews_fname):
+            print('PR {} Getting reviews from GH api'.format(pr['number']))
+            reviews_pr = reviews(pr['number'])
+            with open(reviews_fname, 'w') as reviews_json:
+                reviews_json.write(json.dumps(reviews_pr))
 
     return
 
